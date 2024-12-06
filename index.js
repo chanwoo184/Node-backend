@@ -9,6 +9,9 @@ const authRoutes = require('./routes/authRoutes');
 const userRoutes = require('./routes/userRoutes');
 const jobRoutes = require('./routes/jobRoutes');
 const applicationRoutes = require('./routes/applicationRoutes');
+const bookmarkRoutes = require('./routes/bookmarkRoutes');
+const reviewRoutes = require('./routes/reviewRoutes');
+const skillRoutes = require('./routes/skillRoutes');
 const swaggerUi = require('swagger-ui-express');
 const swaggerJsdoc = require('swagger-jsdoc');
 const cron = require('node-cron');
@@ -18,6 +21,7 @@ const Company = require('./models/Company');
 const Category = require('./models/Category');
 const Skill = require('./models/Skill');
 const Job = require('./models/Job');
+const { required } = require('joi');
 
 dotenv.config();
 
@@ -93,6 +97,7 @@ const options = {
             description: { type: 'string' },
             createdAt: { type: 'string', format: 'date-time' },
           },
+          required: ['name']
         },
         Job: {
           type: 'object',
@@ -126,6 +131,30 @@ const options = {
             createdAt: { type: 'string', format: 'date-time' },
           },
         },
+        // Bookmark 스키마 추가
+        Bookmark: {
+          type: 'object',
+          properties: {
+            _id: { type: 'string' },
+            user: { $ref: '#/components/schemas/User' },
+            job: { $ref: '#/components/schemas/Job' },
+            createdAt: { type: 'string', format: 'date-time' },
+            updatedAt: { type: 'string', format: 'date-time' },
+          },
+        },
+        // Review 스키마 추가
+        Review: {
+          type: 'object',
+          properties: {
+            _id: { type: 'string' },
+            user: { $ref: '#/components/schemas/User' },
+            job: { $ref: '#/components/schemas/Job' },
+            rating: { type: 'number', minimum: 1, maximum: 5 },
+            feedback: { type: 'string' },
+            createdAt: { type: 'string', format: 'date-time' },
+            updatedAt: { type: 'string', format: 'date-time' },
+          },
+        },
       },
     },
     security: [
@@ -147,6 +176,9 @@ app.use('/api/auth', authRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/jobs', jobRoutes);
 app.use('/api/applications', applicationRoutes);
+app.use('/api/bookmarks', bookmarkRoutes);
+app.use('/api/reviews', reviewRoutes);
+app.use('/api/skills', skillRoutes);
 
 // 기본 라우트
 app.get('/', (req, res) => {
@@ -158,8 +190,7 @@ const PORT = process.env.PORT || 5000;
 const startServer = async () => {
   try {
     await mongoose.connect(process.env.DB_URI, {
-      useNewUrlParser: true,
-      useUnifiedTopology: true,
+  
     });
     console.log('MongoDB 연결 성공');
 
