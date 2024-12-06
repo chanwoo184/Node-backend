@@ -22,8 +22,9 @@ const Category = require('./models/Category');
 const Skill = require('./models/Skill');
 const Job = require('./models/Job');
 const { required } = require('joi');
+const errorHandler = require('./middleware/errorHandler'); // 글로벌 에러 핸들러
 
-dotenv.config();
+dotenv.config(); // 기본적으로 .env 파일 로드 
 
 const app = express();
 
@@ -193,6 +194,9 @@ app.use('/api/skills', skillRoutes);
 app.get('/', (req, res) => {
   res.send('Job Board API');
 });
+
+// 글로벌 에러 핸들러 등록 (모든 라우트 후에 등록)
+app.use(errorHandler);
 
 // 서버 시작 부분을 함수로 분리
 const PORT = process.env.PORT || 5000;
