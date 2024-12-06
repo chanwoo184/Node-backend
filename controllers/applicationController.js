@@ -60,16 +60,33 @@ exports.cancelApplication = async (req, res) => {
 // 지원 내역 조회
 exports.getApplications = async (req, res) => {
   try {
-    const applications = await Application.find({ user: req.user.id })
+    const { status, sortBy } = req.query; // 상태 및 정렬 기준
+
+    const query = { user: req.user.id };
+    if (status) {
+      query.status = status;
+    }
+
+    let sortOption = { createdAt: -1 }; // 기본: 최신 순
+    if (sortBy === 'asc') {
+      sortOption = { createdAt: 1 };
+    } else if (sortBy === 'desc') {
+      sortOption = { createdAt: -1 };
+    }
+
+    const applications = await Application.find(query)
       .populate({
         path: 'job',
         populate: { path: 'company sector skills' }
-      });
+      })
+      .sort(sortOption);
+    
     res.json(applications);
   } catch(err) {
     res.status(500).json({ message: '서버 에러', error: err.message });
   }
 };
+
 
 // 관심 등록
 exports.bookmarkJob = async (req, res) => {

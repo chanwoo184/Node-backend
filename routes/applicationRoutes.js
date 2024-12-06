@@ -128,7 +128,7 @@ router.delete('/cancel/:applicationId', protect, cancelApplication);
  *       500:
  *         description: 서버 에러
  */
-router.get('/', protect, getApplications);
+router.get('/applications', protect, getApplications);
 
 /**
  * @swagger
