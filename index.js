@@ -155,6 +155,15 @@ const options = {
             updatedAt: { type: 'string', format: 'date-time' },
           },
         },
+        // Access Token 및 Refresh Token 스키마
+        AuthResponse: {
+          type: 'object',
+          properties: {
+            message: { type: 'string' },
+            accessToken: { type: 'string' },
+            refreshToken: { type: 'string' },
+          },
+        },
       },
     },
     security: [
@@ -312,7 +321,6 @@ const extractSkillsFromJobTitle = (title) => {
   return skills;
 };
 
-// 날짜 형식 변환 함수 (utils/parseDate.js에 이미 존재)
 
 
 startServer();
