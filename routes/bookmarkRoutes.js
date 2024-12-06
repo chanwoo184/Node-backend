@@ -1,103 +1,127 @@
 // routes/bookmarkRoutes.js
 const express = require('express');
-const { bookmarkJob, unbookmarkJob, getBookmarks } = require('../controllers/bookmarkController');
-const { protect } = require('../middleware/authMiddleware');
-
 const router = express.Router();
+const { toggleBookmark, getBookmarks } = require('../controllers/bookmarkController');
+const { protect } = require('../middleware/authMiddleware');
 
 /**
  * @swagger
  * tags:
  *   name: Bookmarks
- *   description: 북마크 관련 API
+ *   description: 북마크 관리 API
  */
 
 /**
  * @swagger
- * /api/bookmarks/bookmark/{jobId}:
+ * /bookmarks/toggle/{jobId}:
  *   post:
- *     summary: 관심 등록
+ *     summary: 채용 공고 북마크 토글 (추가/제거)
  *     tags: [Bookmarks]
  *     security:
  *       - bearerAuth: []
  *     parameters:
  *       - in: path
  *         name: jobId
- *         required: true
  *         schema:
  *           type: string
- *         description: 관심 등록할 채용 공고 ID
+ *         required: true
+ *         description: 북마크할 채용 공고의 ID
  *     responses:
  *       201:
- *         description: 관심 등록 완료
- *         content:
- *           application/json:
- *             schema:
- *               $ref: '#/components/schemas/Bookmark'
+ *         description: 북마크 추가 완료
+ *       200:
+ *         description: 북마크 제거 완료
  *       400:
- *         description: 이미 관심 등록된 공고
- *       401:
- *         description: 인증 토큰이 없거나 유효하지 않음
+ *         description: 잘못된 요청 또는 이미 북마크된 공고
  *       404:
  *         description: 채용 공고를 찾을 수 없음
  *       500:
  *         description: 서버 에러
  */
-router.post('/bookmark/:jobId', protect, bookmarkJob);
+router.post('/toggle/:jobId', protect, toggleBookmark);
 
 /**
  * @swagger
- * /api/bookmarks/bookmark/{jobId}:
- *   delete:
- *     summary: 관심 등록 취소
+ * /bookmarks:
+ *   get:
+ *     summary: 내 북마크 목록 조회
  *     tags: [Bookmarks]
  *     security:
  *       - bearerAuth: []
  *     parameters:
- *       - in: path
- *         name: jobId
- *         required: true
+ *       - in: query
+ *         name: page
+ *         schema:
+ *           type: integer
+ *           default: 1
+ *         description: 페이지 번호
+ *       - in: query
+ *         name: limit
+ *         schema:
+ *           type: integer
+ *           default: 20
+ *         description: 페이지당 항목 수
+ *       - in: query
+ *         name: sortBy
  *         schema:
  *           type: string
- *         description: 관심 등록 취소할 채용 공고 ID
+ *           enum: [createdAt, jobTitle]
+ *           default: createdAt
+ *         description: 정렬 기준
+ *       - in: query
+ *         name: sortOrder
+ *         schema:
+ *           type: string
+ *           enum: [asc, desc]
+ *           default: desc
+ *         description: 정렬 순서
+ *       - in: query
+ *         name: location
+ *         schema:
+ *           type: string
+ *         description: 지역별 필터링
+ *       - in: query
+ *         name: experience
+ *         schema:
+ *           type: string
+ *         description: 경력별 필터링
+ *       - in: query
+ *         name: salaryMin
+ *         schema:
+ *           type: number
+ *         description: 최소 급여
+ *       - in: query
+ *         name: salaryMax
+ *         schema:
+ *           type: number
+ *         description: 최대 급여
+ *       - in: query
+ *         name: skills
+ *         schema:
+ *           type: string
+ *         description: 기술스택별 필터링 (쉼표로 구분)
+ *       - in: query
+ *         name: keyword
+ *         schema:
+ *           type: string
+ *         description: 키워드 검색
+ *       - in: query
+ *         name: company
+ *         schema:
+ *           type: string
+ *         description: 회사명 검색
+ *       - in: query
+ *         name: position
+ *         schema:
+ *           type: string
+ *         description: 포지션 검색
  *     responses:
  *       200:
- *         description: 관심 등록 취소 완료
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 message:
- *                   type: string
+ *         description: 북마크 목록 반환
+ *       400:
+ *         description: 잘못된 요청
  *       401:
- *         description: 인증 토큰이 없거나 유효하지 않음
- *       404:
- *         description: 관심 등록된 공고를 찾을 수 없음
- *       500:
- *         description: 서버 에러
- */
-router.delete('/bookmark/:jobId', protect, unbookmarkJob);
-
-/**
- * @swagger
- * /api/bookmarks:
- *   get:
- *     summary: 관심 목록 조회
- *     tags: [Bookmarks]
- *     security:
- *       - bearerAuth: []
- *     responses:
- *       200:
- *         description: 사용자의 모든 관심 목록 반환
- *         content:
- *           application/json:
- *             schema:
- *               type: array
- *               items:
- *                 $ref: '#/components/schemas/Bookmark'
- *       401:
- *         description: 인증 토큰이 없거나 유효하지 않음
+ *         description: 인증 실패
  *       500:
  *         description: 서버 에러
  */
