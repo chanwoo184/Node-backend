@@ -1,9 +1,11 @@
-// crawler.js
+// services/crawler.js (수정)
 const axios = require('axios');
 const cheerio = require('cheerio');
-const Job = require('./models/Job');
-const mongoose = require('mongoose');
-require('dotenv').config();
+const Job = require('../models/Job');
+const Company = require('../models/Company');
+const Category = require('../models/Category');
+const Skill = require('../models/Skill');
+const parseDate = require('../utils/parseDate');
 
 const crawlSaramin = async (keyword, pages = 1) => {
   const jobs = [];
