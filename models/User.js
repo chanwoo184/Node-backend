@@ -2,6 +2,19 @@
 const mongoose = require('mongoose');
 const bcrypt = require('bcrypt');
 
+/**
+ * @typedef {Object} User
+ * @property {string} _id - 사용자 고유 ID
+ * @property {string} username - 사용자 이름
+ * @property {string} email - 사용자 이메일
+ * @property {string} password - 사용자 비밀번호 (해싱됨)
+ * @property {string} role - 사용자 역할 (user, admin)
+ * @property {Array} refreshTokens - 사용자 Refresh Token 목록
+ */
+
+/**
+ * 사용자 스키마 정의
+ */
 const userSchema = new mongoose.Schema({
   username: {
     type: String,
@@ -50,7 +63,11 @@ userSchema.pre('save', async function(next) {
   next();
 });
 
-// 비밀번호 비교 메소드
+/**
+ * 비밀번호 비교 메소드
+ * @param {string} enteredPassword - 입력된 비밀번호
+ * @returns {boolean} - 비밀번호 일치 여부
+ */
 userSchema.methods.matchPassword = async function(enteredPassword) {
   return await bcrypt.compare(enteredPassword, this.password);
 };

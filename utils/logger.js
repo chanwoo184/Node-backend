@@ -4,22 +4,35 @@ const { combine, timestamp, printf, colorize } = format;
 const { ElasticsearchTransport } = require('winston-elasticsearch');
 const { Client } = require('@elastic/elasticsearch');
 
+/**
+ * Elasticsearch 클라이언트 설정
+ */
 const esClient = new Client({ node: 'http://localhost:9200' });
-//ELK 스택을 설정하고 실행 중이어야 합니다. Elasticsearch는 기본적으로 http://localhost:9200에서 실행됩니다.
+
+/**
+ * Elasticsearch 트랜스포트 옵션
+ */
 const esTransportOpts = {
   level: 'error',
   client: esClient,
   indexPrefix: 'logs', // 인덱스 접두사
 };
 
+/**
+ * Elasticsearch 트랜스포트 생성
+ */
 const esTransport = new ElasticsearchTransport(esTransportOpts);
 
-// 사용자 정의 로그 포맷
+/**
+ * 사용자 정의 로그 포맷
+ */
 const myFormat = printf(({ level, message, timestamp }) => {
   return `${timestamp} [${level}]: ${message}`;
 });
 
-// 로거 생성
+/**
+ * Winston 로거 생성
+ */
 const logger = createLogger({
   level: 'info',
   format: combine(

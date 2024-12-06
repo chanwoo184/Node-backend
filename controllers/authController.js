@@ -10,7 +10,15 @@ const {
 } = require('../middleware/roleMiddleware');
 const { BadRequestError, UnauthorizedError } = require('../utils/customError');
 
-// 회원 가입
+/**
+ * @desc    회원 가입
+ * @route   POST /api/auth/register
+ * @access  Public
+ * @param   {Object} req - Express request 객체
+ * @param   {Object} res - Express response 객체
+ * @param   {Function} next - Express next 미들웨어 함수
+ * @returns {Object} - 회원 가입 성공 시 Access Token과 Refresh Token 반환
+ */
 exports.register = async (req, res, next) => {
   // 입력 데이터 검증
   const { error } = registerSchema.validate(req.body);
@@ -21,7 +29,7 @@ exports.register = async (req, res, next) => {
   const { username, email, password } = req.body;
 
   try {
-    // 기존 사용자 확인
+    // 기존 사용자 확인 및 등록
     let user = await User.findOne({ email });
     if (user) {
       return next(new BadRequestError('이미 존재하는 이메일입니다.'));
@@ -44,11 +52,19 @@ exports.register = async (req, res, next) => {
       refreshToken,
     });
   } catch (error) {
-    next(error); // 글로벌 에러 핸들러로 전달
+    next(error);
   }
 };
 
-// 로그인
+/**
+ * @desc    로그인
+ * @route   POST /api/auth/login
+ * @access  Public
+ * @param   {Object} req - Express request 객체
+ * @param   {Object} res - Express response 객체
+ * @param   {Function} next - Express next 미들웨어 함수
+ * @returns {Object} - 로그인 성공 시 Access Token과 Refresh Token 반환
+ */
 exports.login = async (req, res, next) => {
   // 입력 데이터 검증
   const { error } = loginSchema.validate(req.body);
@@ -85,11 +101,19 @@ exports.login = async (req, res, next) => {
       refreshToken,
     });
   } catch (error) {
-    next(error); // 글로벌 에러 핸들러로 전달
+    next(error);
   }
 };
 
-// 로그아웃
+/**
+ * @desc    로그아웃
+ * @route   POST /api/auth/logout
+ * @access  Public
+ * @param   {Object} req - Express request 객체
+ * @param   {Object} res - Express response 객체
+ * @param   {Function} next - Express next 미들웨어 함수
+ * @returns {Object} - 로그아웃 성공 메시지 반환
+ */
 exports.logout = async (req, res, next) => {
   // 입력 데이터 검증
   const { error } = logoutSchema.validate(req.body);
@@ -121,7 +145,15 @@ exports.logout = async (req, res, next) => {
   }
 };
 
-// 토큰 갱신
+/**
+ * @desc    토큰 갱신
+ * @route   POST /api/auth/refresh-token
+ * @access  Public
+ * @param   {Object} req - Express request 객체
+ * @param   {Object} res - Express response 객체
+ * @param   {Function} next - Express next 미들웨어 함수
+ * @returns {Object} - 새로운 Access Token 반환
+ */
 exports.refreshToken = async (req, res, next) => {
   // 입력 데이터 검증
   const { error } = refreshTokenSchema.validate(req.body);
