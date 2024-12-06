@@ -5,7 +5,7 @@ const {
   bookmarkJob, unbookmarkJob, getBookmarks 
 } = require('../controllers/applicationController');
 const { protect } = require('../middleware/authMiddleware');
-
+const upload = require('../middleware/uploadMiddleware'); // 파일 업로드 미들웨어
 const router = express.Router();
 
 /**
@@ -68,8 +68,7 @@ const router = express.Router();
  *       500:
  *         description: 서버 에러
  */
-router.post('/apply/:jobId', protect, applyJob);
-
+router.post('/applications/:jobId', protect, upload.single('resume'), applyJob);
 /**
  * @swagger
  * /api/applications/cancel/{applicationId}:
@@ -104,7 +103,7 @@ router.post('/apply/:jobId', protect, applyJob);
  *       500:
  *         description: 서버 에러
  */
-router.delete('/cancel/:applicationId', protect, cancelApplication);
+router.delete('/applications/:applicationId', protect, cancelApplication);
 
 /**
  * @swagger
