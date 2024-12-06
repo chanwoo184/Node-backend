@@ -20,6 +20,7 @@ const jobSchema = new mongoose.Schema({
   sector: { type: mongoose.Schema.Types.ObjectId, ref: 'Category' },
   skills: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Skill' }],
   salary: String,
+  views: { type: Number, default: 0 }, // 조회수 필드 추가
   createdAt: { type: Date, default: Date.now },
 });
 

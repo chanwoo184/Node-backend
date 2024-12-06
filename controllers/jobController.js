@@ -5,9 +5,15 @@ const Category = require('../models/Category');
 const Skill = require('../models/Skill');
 const Joi = require('joi');
 const parseDate = require('../utils/parseDate');
+const asyncHandler = require('express-async-handler');
+const { BadRequestError, NotFoundError } = require('../utils/customError');
 
-// 채용 공고 생성
-exports.createJob = async (req, res) => {
+/**
+ * @desc    채용 공고 생성
+ * @route   POST /jobs
+ * @access  Private/Admin
+ */
+exports.createJob = asyncHandler(async (req, res, next) => {
   // 입력 데이터 검증
   const schema = Joi.object({
     title:          Joi.string().required(),
@@ -24,7 +30,7 @@ exports.createJob = async (req, res) => {
   });
 
   const { error } = schema.validate(req.body);
-  if (error) return res.status(400).json({ message: error.details[0].message });
+  if (error) return next(new BadRequestError(error.details[0].message));
 
   try {
     // 회사 확인 또는 생성
@@ -78,21 +84,26 @@ exports.createJob = async (req, res) => {
       sector: category ? category._id : null,
       skills: skills,
       salary: req.body.salary,
+      views: 0, // 조회수 초기화
     });
 
     await job.save();
     res.status(201).json({ message: '채용 공고 생성 완료', job });
   } catch(err) {
     if (err.code === 11000) { // 중복 키 에러
-      res.status(400).json({ message: '이미 존재하는 링크입니다.' });
+      next(new BadRequestError('이미 존재하는 링크입니다.'));
     } else {
-      res.status(500).json({ message: '서버 에러', error: err.message });
+      next(err);
     }
   }
-};
+});
 
-// 채용 공고 전체 조회
-exports.getJobs = async (req, res) => {
+/**
+ * @desc    채용 공고 전체 조회
+ * @route   GET /jobs
+ * @access  Public
+ */
+exports.getJobs = asyncHandler(async (req, res, next) => {
   const { skip, limit, page } = req.pagination;
   try {
     const jobs = await Job.find()
@@ -100,8 +111,9 @@ exports.getJobs = async (req, res) => {
       .populate('sector')
       .populate('skills')
       .skip(skip)
-      .limit(limit);
-    
+      .limit(limit)
+      .sort({ createdAt: -1 }); // 최신순 정렬
+
     const total = await Job.countDocuments();
     res.json({
       total,
@@ -110,26 +122,55 @@ exports.getJobs = async (req, res) => {
       jobs,
     });
   } catch(err) {
-    res.status(500).json({ message: '서버 에러', error: err.message });
+    next(err);
   }
-};
+});
 
-// 특정 채용 공고 조회
-exports.getJobById = async (req, res) => {
+/**
+ * @desc    특정 채용 공고 조회
+ * @route   GET /jobs/:id
+ * @access  Public
+ */
+exports.getJobById = asyncHandler(async (req, res, next) => {
   try {
     const job = await Job.findById(req.params.id)
       .populate('company')
       .populate('sector')
       .populate('skills');
-    if (!job) return res.status(404).json({ message: '채용 공고를 찾을 수 없습니다.' });
-    res.json(job);
-  } catch(err) {
-    res.status(500).json({ message: '서버 에러', error: err.message });
-  }
-};
+    
+    if (!job) return next(new NotFoundError('채용 공고를 찾을 수 없습니다.'));
 
-// 채용 공고 수정
-exports.updateJob = async (req, res) => {
+    // 조회수 증가
+    job.views = (job.views || 0) + 1;
+    await job.save();
+
+    // 관련 공고 추천
+    const relatedJobs = await Job.find({
+      _id: { $ne: job._id },
+      $or: [
+        { skills: { $in: job.skills } },
+        { sector: job.sector },
+        { location: job.location },
+        { company: job.company },
+      ]
+    })
+    .limit(5)
+    .populate('company')
+    .populate('sector')
+    .populate('skills');
+
+    res.json({ job, relatedJobs });
+  } catch(err) {
+    next(err);
+  }
+});
+
+/**
+ * @desc    채용 공고 수정
+ * @route   PUT /jobs/:id
+ * @access  Private/Admin
+ */
+exports.updateJob = asyncHandler(async (req, res, next) => {
   // 입력 데이터 검증
   const schema = Joi.object({
     title:          Joi.string(),
@@ -146,7 +187,7 @@ exports.updateJob = async (req, res) => {
   });
 
   const { error } = schema.validate(req.body);
-  if (error) return res.status(400).json({ message: error.details[0].message });
+  if (error) return next(new BadRequestError(error.details[0].message));
 
   try {
     const updateData = {};
@@ -208,37 +249,50 @@ exports.updateJob = async (req, res) => {
       .populate('sector')
       .populate('skills');
 
-    if (!job) return res.status(404).json({ message: '채용 공고를 찾을 수 없습니다.' });
+    if (!job) return next(new NotFoundError('채용 공고를 찾을 수 없습니다.'));
 
     res.json({ message: '채용 공고 수정 완료', job });
   } catch(err) {
     if (err.code === 11000) { // 중복 키 에러
-      res.status(400).json({ message: '이미 존재하는 링크입니다.' });
+      next(new BadRequestError('이미 존재하는 링크입니다.'));
     } else {
-      res.status(500).json({ message: '서버 에러', error: err.message });
+      next(err);
     }
   }
-};
+});
 
-// 채용 공고 삭제
-exports.deleteJob = async (req, res) => {
+/**
+ * @desc    채용 공고 삭제
+ * @route   DELETE /jobs/:id
+ * @access  Private/Admin
+ */
+exports.deleteJob = asyncHandler(async (req, res, next) => {
   try {
     const job = await Job.findByIdAndDelete(req.params.id);
-    if (!job) return res.status(404).json({ message: '채용 공고를 찾을 수 없습니다.' });
+    if (!job) return next(new NotFoundError('채용 공고를 찾을 수 없습니다.'));
     res.json({ message: '채용 공고 삭제 완료' });
   } catch(err) {
-    res.status(500).json({ message: '서버 에러', error: err.message });
+    next(err);
   }
-};
+});
 
-// 채용 공고 검색
-exports.searchJobs = async (req, res) => {
+/**
+ * @desc    채용 공고 검색
+ * @route   GET /jobs/search
+ * @access  Public
+ */
+exports.searchJobs = asyncHandler(async (req, res, next) => {
   try {
     const { keyword } = req.query;
-    if (!keyword) return res.status(400).json({ message: '검색 키워드가 필요합니다.' });
+    if (!keyword) return next(new BadRequestError('검색 키워드가 필요합니다.'));
 
     const jobs = await Job.find({
-      title: { $regex: keyword, $options: 'i' }
+      title: { $regex: keyword, $options: 'i' },
+      // 공고 내용(description) 필드가 있다면 추가
+      // $or: [
+      //   { title: { $regex: keyword, $options: 'i' } },
+      //   { description: { $regex: keyword, $options: 'i' } }
+      // ]
     })
     .populate('company')
     .populate('sector')
@@ -246,14 +300,18 @@ exports.searchJobs = async (req, res) => {
 
     res.json(jobs);
   } catch(err) {
-    res.status(500).json({ message: '서버 에러', error: err.message });
+    next(err);
   }
-};
+});
 
-// 채용 공고 필터링
-exports.filterJobs = async (req, res) => {
+/**
+ * @desc    채용 공고 필터링
+ * @route   GET /jobs/filter
+ * @access  Public
+ */
+exports.filterJobs = asyncHandler(async (req, res, next) => {
   try {
-    const { location, employmentType, sector, salaryMin, salaryMax } = req.query;
+    const { location, employmentType, sector, salaryMin, salaryMax, skills } = req.query;
     let filter = {};
 
     if (location) filter.location = location;
@@ -267,6 +325,10 @@ exports.filterJobs = async (req, res) => {
       if (salaryMin) filter.salary.$gte = salaryMin;
       if (salaryMax) filter.salary.$lte = salaryMax;
     }
+    if (skills) {
+      const skillsArray = skills.split(',').map(skill => skill.trim());
+      filter.skills = { $in: skillsArray };
+    }
 
     const jobs = await Job.find(filter)
       .populate('company')
@@ -275,12 +337,16 @@ exports.filterJobs = async (req, res) => {
 
     res.json(jobs);
   } catch(err) {
-    res.status(500).json({ message: '서버 에러', error: err.message });
+    next(err);
   }
-};
+});
 
-// 채용 공고 정렬
-exports.sortJobs = async (req, res) => {
+/**
+ * @desc    채용 공고 정렬
+ * @route   GET /jobs/sort
+ * @access  Public
+ */
+exports.sortJobs = asyncHandler(async (req, res, next) => {
   try {
     const { sortBy, order } = req.query;
     let sortCriteria = {};
@@ -297,12 +363,16 @@ exports.sortJobs = async (req, res) => {
 
     res.json(jobs);
   } catch(err) {
-    res.status(500).json({ message: '서버 에러', error: err.message });
+    next(err);
   }
-};
+});
 
-// 데이터 집계 - 산업별 채용 공고 수
-exports.aggregateJobs = async (req, res) => {
+/**
+ * @desc    데이터 집계 - 산업별 채용 공고 수
+ * @route   GET /jobs/aggregate/industry-count
+ * @access  Public
+ */
+exports.aggregateJobs = asyncHandler(async (req, res, next) => {
   try {
     const aggregation = await Job.aggregate([
       {
@@ -325,12 +395,16 @@ exports.aggregateJobs = async (req, res) => {
 
     res.json(aggregation);
   } catch(err) {
-    res.status(500).json({ message: '서버 에러', error: err.message });
+    next(err);
   }
-};
+});
 
-// 산업별 평균 연봉 집계
-exports.aggregateAverageSalaryByIndustry = async (req, res) => {
+/**
+ * @desc    산업별 평균 연봉 집계
+ * @route   GET /jobs/aggregate/average-salary
+ * @access  Public
+ */
+exports.aggregateAverageSalaryByIndustry = asyncHandler(async (req, res, next) => {
   try {
     const aggregation = await Job.aggregate([
       {
@@ -369,6 +443,6 @@ exports.aggregateAverageSalaryByIndustry = async (req, res) => {
 
     res.json(aggregation);
   } catch(err) {
-    res.status(500).json({ message: '서버 에러', error: err.message });
+    next(err);
   }
-};
+});
