@@ -23,6 +23,9 @@ const Skill = require('./models/Skill');
 const Job = require('./models/Job');
 const { required } = require('joi');
 const errorHandler = require('./middleware/errorHandler'); // 글로벌 에러 핸들러
+const { requestLogger, errorLogger } = require('./middleware/loggerMiddleware');
+const { metricsRouter } = require('./utils/metrics');
+const metricsMiddleware = require('./middleware/metricsMiddleware');
 
 dotenv.config(); // 기본적으로 .env 파일 로드 
 
@@ -36,6 +39,12 @@ app.use(cors({
   optionsSuccessStatus: 200
 }));
 app.use(rateLimiter);
+
+// 요청 로깅
+app.use(requestLogger);
+
+// 메트릭 미들웨어 등록 (요청 로깅 후에 등록)
+app.use(metricsMiddleware);
 
 // Swagger 설정
 const options = {
@@ -194,6 +203,12 @@ app.use('/api/skills', skillRoutes);
 app.get('/', (req, res) => {
   res.send('Job Board API');
 });
+
+// 메트릭 노출 라우트
+app.use('/metrics', metricsRouter);
+
+// 에러 로깅 (에러 핸들러 전에 등록)
+app.use(errorLogger);
 
 // 글로벌 에러 핸들러 등록 (모든 라우트 후에 등록)
 app.use(errorHandler);

@@ -1,7 +1,18 @@
 // utils/logger.js
-// 로깅 시스템 구축 
 const { createLogger, format, transports } = require('winston');
 const { combine, timestamp, printf, colorize } = format;
+const { ElasticsearchTransport } = require('winston-elasticsearch');
+const { Client } = require('@elastic/elasticsearch');
+
+const esClient = new Client({ node: 'http://localhost:9200' });
+//ELK 스택을 설정하고 실행 중이어야 합니다. Elasticsearch는 기본적으로 http://localhost:9200에서 실행됩니다.
+const esTransportOpts = {
+  level: 'error',
+  client: esClient,
+  indexPrefix: 'logs', // 인덱스 접두사
+};
+
+const esTransport = new ElasticsearchTransport(esTransportOpts);
 
 // 사용자 정의 로그 포맷
 const myFormat = printf(({ level, message, timestamp }) => {
@@ -28,6 +39,8 @@ const logger = createLogger({
     // 파일 로그
     new transports.File({ filename: 'logs/error.log', level: 'error' }),
     new transports.File({ filename: 'logs/combined.log' }),
+    // Elasticsearch 로그 (에러 수준만)
+    esTransport,
   ],
 });
 

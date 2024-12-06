@@ -1,8 +1,15 @@
 // middleware/errorHandler.js
+// 로깅 시스템 구축 
 const { CustomError } = require('../utils/customError');
+const logger = require('../utils/logger');
 
 const errorHandler = (err, req, res, next) => {
-  console.error(err); // 개발 환경에서는 콘솔에 에러 로그 출력
+  // 에러 로깅
+  if (err instanceof CustomError) {
+    logger.error(`${err.statusCode} - ${err.message} - ${req.originalUrl} - ${req.method} - ${req.ip}`);
+  } else {
+    logger.error(`500 - 서버 에러 - ${req.originalUrl} - ${req.method} - ${req.ip}`);
+  }
 
   if (err instanceof CustomError) {
     // 커스텀 에러인 경우
