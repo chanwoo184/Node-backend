@@ -82,3 +82,24 @@
 2024-12-07T11:46:58.808Z [error]: 400 - "resume" is not allowed - /api/applications/apply/6752b60ed8344c14a64c2790 - POST - ::1
 2024-12-07T11:48:09.905Z [error]: 400 - "resume" is not allowed - /api/applications/apply/6752b60ed8344c14a64c2790 - POST - ::1
 2024-12-07T12:06:19.713Z [error]: 404 - 지원 내역을 찾을 수 없습니다. - /api/applications/cancel/6752b60ed8344c14a64c2791 - DELETE - ::1
+2024-12-07T12:39:59.917Z [error]: ::1 - - [07/Dec/2024:12:39:59 +0000] "POST /jobs HTTP/1.1" 404 144 "-" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36"
+2024-12-07T12:40:05.449Z [error]: ::1 - - [07/Dec/2024:12:40:05 +0000] "POST /jobs HTTP/1.1" 404 144 "-" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36"
+2024-12-07T12:41:43.736Z [error]: ::1 - - [07/Dec/2024:12:41:43 +0000] "POST /jobs HTTP/1.1" 404 144 "-" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36"
+2024-12-07T12:53:52.512Z [error]: ::1 - - [07/Dec/2024:12:53:52 +0000] "POST /jobs HTTP/1.1" 404 144 "-" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36"
+2024-12-07T13:04:44.542Z [error]: ::1 - - [07/Dec/2024:13:04:44 +0000] "GET /jobs?page=1&limit=20 HTTP/1.1" 404 143 "-" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36"
+2024-12-07T13:32:04.363Z [error]: ::1 - - [07/Dec/2024:13:32:04 +0000] "GET /jobs/aggregate/industry-count HTTP/1.1" 404 168 "-" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36"
+2024-12-07T13:47:35.345Z [error]: 500 - 서버 에러 - /api/jobs - POST - ::1
+2024-12-07T13:53:37.517Z [error]: 500 - 서버 에러 - /api/jobs - POST - ::1
+2024-12-07T13:53:42.018Z [error]: 500 - 서버 에러 - /api/jobs - POST - ::1
+2024-12-07T13:53:46.732Z [error]: 500 - 서버 에러 - /api/jobs - POST - ::1
+2024-12-07T13:55:14.709Z [error]: 500 - 서버 에러 - /api/jobs/search?keyword=%EB%B0%B1%EC%97%94%EB%93%9C - GET - ::1
+2024-12-07T13:55:41.257Z [error]: 500 - 서버 에러 - /api/jobs/search?keyword=%EB%B0%B1%EC%97%94%EB%93%9C - GET - ::1
+2024-12-07T13:56:17.289Z [error]: 500 - 서버 에러 - /api/jobs/aggregate/average-salary - GET - ::1
+2024-12-07T13:56:25.408Z [error]: 500 - 서버 에러 - /api/jobs/aggregate/average-salary - GET - ::1
+2024-12-07T14:05:22.305Z [error]: 500 - 서버 에러 - /api/jobs - POST - ::1
+2024-12-07T14:16:47.963Z [error]: 500 - 서버 에러 - /api/jobs/search?keyword=%EB%B0%B1%EC%97%94%EB%93%9C - GET - ::1
+2024-12-07T14:17:07.186Z [error]: 500 - 서버 에러 - /api/jobs/filter - GET - ::1
+2024-12-07T14:19:54.481Z [error]: 500 - 서버 에러 - /api/jobs/sort?sortBy=createdAt&order=desc - GET - ::1
+2024-12-07T14:44:45.485Z [error]: 500 - 서버 에러 - /api/jobs/filter?skills=java - GET - ::1
+2024-12-07T14:51:52.603Z [error]: 500 - 서버 에러 - /api/jobs/filter?sector=%EB%B0%B1%EC%97%94%EB%93%9C&skills=Java - GET - ::1
+2024-12-07T14:54:18.637Z [error]: 500 - 서버 에러 - /api/jobs/filter?sector=%EB%B0%B1%EC%97%94%EB%93%9C&skills=Java - GET - ::1

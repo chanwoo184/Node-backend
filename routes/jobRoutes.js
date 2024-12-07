@@ -25,9 +25,9 @@ const paginationMiddleware = require('../middleware/paginationMiddleware'); // �
 
 /**
  * @swagger
- * /jobs:
+ * /api/jobs:
  *   post:
- *     summary: 채용 공고 생성
+ *     summary: 채용 공고 생성 (관리자 권한 필요)
  *     tags: [Jobs]
  *     security:
  *       - bearerAuth: []
@@ -86,7 +86,132 @@ router.post('/', protect, authorize('admin'), createJob);
 
 /**
  * @swagger
- * /jobs:
+ * /api/jobs/search:
+ *   get:
+ *     summary: 채용 공고 검색
+ *     tags: [Jobs]
+ *     parameters:
+ *       - in: query
+ *         name: keyword
+ *         schema:
+ *           type: string
+ *         required: true
+ *         description: 검색 키워드
+ *     responses:
+ *       200:
+ *         description: 검색된 채용 공고 목록 반환
+ *       400:
+ *         description: 검색 키워드 누락
+ *       500:
+ *         description: 서버 에러
+ */
+router.get('/search', searchJobs);
+
+/**
+ * @swagger
+ * /api/jobs/filter:
+ *   get:
+ *     summary: 채용 공고 필터링
+ *     tags: [Jobs]
+ *     parameters:
+ *       - in: query
+ *         name: location
+ *         schema:
+ *           type: string
+ *         description: 지역별 필터링
+ *       - in: query
+ *         name: employmentType
+ *         schema:
+ *           type: string
+ *         description: 고용 형태별 필터링
+ *       - in: query
+ *         name: sector
+ *         schema:
+ *           type: string
+ *         description: 산업 분야별 필터링
+ *       - in: query
+ *         name: salaryMin
+ *         schema:
+ *           type: number
+ *         description: 최소 급여
+ *       - in: query
+ *         name: salaryMax
+ *         schema:
+ *           type: number
+ *         description: 최대 급여
+ *       - in: query
+ *         name: skills
+ *         schema:
+ *           type: string
+ *         description: 기술 스택별 필터링 (쉼표로 구분)
+ *     responses:
+ *       200:
+ *         description: 필터링된 채용 공고 목록 반환
+ *       500:
+ *         description: 서버 에러
+ */
+router.get('/filter', filterJobs);
+
+/**
+ * @swagger
+ * /api/jobs/sort:
+ *   get:
+ *     summary: 채용 공고 정렬
+ *     tags: [Jobs]
+ *     parameters:
+ *       - in: query
+ *         name: sortBy
+ *         schema:
+ *           type: string
+ *           enum: [createdAt, title]
+ *           default: createdAt
+ *         description: "정렬 기준 (createdAt: 생성일, title: 공고 제목)"
+ *       - in: query
+ *         name: order
+ *         schema:
+ *           type: string
+ *           enum: [asc, desc]
+ *           default: desc
+ *         description: "정렬 순서 (asc: 오름차순, desc: 내림차순)"
+ *     responses:
+ *       200:
+ *         description: 정렬된 채용 공고 목록 반환
+ *       500:
+ *         description: 서버 에러
+ */
+router.get('/sort', sortJobs);
+
+/**
+ * @swagger
+ * /api/jobs/aggregate/industry-count:
+ *   get:
+ *     summary: 산업별 채용 공고 수 집계
+ *     tags: [Jobs]
+ *     responses:
+ *       200:
+ *         description: 산업별 채용 공고 수 반환
+ *       500:
+ *         description: 서버 에러
+ */
+router.get('/aggregate/industry-count', aggregateJobs);
+
+/**
+ * @swagger
+ * /api/jobs/aggregate/average-salary:
+ *   get:
+ *     summary: 산업별 평균 연봉 집계
+ *     tags: [Jobs]
+ *     responses:
+ *       200:
+ *         description: 산업별 평균 연봉 반환
+ *       500:
+ *         description: 서버 에러
+ */
+router.get('/aggregate/average-salary', aggregateAverageSalaryByIndustry);
+
+/**
+ * @swagger
+ * /api/jobs:
  *   get:
  *     summary: 채용 공고 전체 조회
  *     tags: [Jobs]
@@ -113,7 +238,7 @@ router.get('/', paginationMiddleware, getJobs);
 
 /**
  * @swagger
- * /jobs/{id}:
+ * /api/jobs/{id}:
  *   get:
  *     summary: 특정 채용 공고 조회
  *     tags: [Jobs]
@@ -147,9 +272,9 @@ router.get('/:id', getJobById);
 
 /**
  * @swagger
- * /jobs/{id}:
+ * /api/jobs/{id}:
  *   put:
- *     summary: 특정 채용 공고 수정
+ *     summary: 특정 채용 공고 수정 (관리자 권한 필요)
  *     tags: [Jobs]
  *     security:
  *       - bearerAuth: []
@@ -217,9 +342,9 @@ router.put('/:id', protect, authorize('admin'), updateJob);
 
 /**
  * @swagger
- * /jobs/{id}:
+ * /api/jobs/{id}:
  *   delete:
- *     summary: 특정 채용 공고 삭제
+ *     summary: 특정 채용 공고 삭제 (관리자 권한 필요)
  *     tags: [Jobs]
  *     security:
  *       - bearerAuth: []
@@ -239,130 +364,5 @@ router.put('/:id', protect, authorize('admin'), updateJob);
  *         description: 서버 에러
  */
 router.delete('/:id', protect, authorize('admin'), deleteJob);
-
-/**
- * @swagger
- * /jobs/search:
- *   get:
- *     summary: 채용 공고 검색
- *     tags: [Jobs]
- *     parameters:
- *       - in: query
- *         name: keyword
- *         schema:
- *           type: string
- *         required: true
- *         description: 검색 키워드
- *     responses:
- *       200:
- *         description: 검색된 채용 공고 목록 반환
- *       400:
- *         description: 검색 키워드 누락
- *       500:
- *         description: 서버 에러
- */
-router.get('/search', searchJobs);
-
-/**
- * @swagger
- * /jobs/filter:
- *   get:
- *     summary: 채용 공고 필터링
- *     tags: [Jobs]
- *     parameters:
- *       - in: query
- *         name: location
- *         schema:
- *           type: string
- *         description: 지역별 필터링
- *       - in: query
- *         name: employmentType
- *         schema:
- *           type: string
- *         description: 고용 형태별 필터링
- *       - in: query
- *         name: sector
- *         schema:
- *           type: string
- *         description: 산업 분야별 필터링
- *       - in: query
- *         name: salaryMin
- *         schema:
- *           type: number
- *         description: 최소 급여
- *       - in: query
- *         name: salaryMax
- *         schema:
- *           type: number
- *         description: 최대 급여
- *       - in: query
- *         name: skills
- *         schema:
- *           type: string
- *         description: 기술 스택별 필터링 (쉼표로 구분)
- *     responses:
- *       200:
- *         description: 필터링된 채용 공고 목록 반환
- *       500:
- *         description: 서버 에러
- */
-router.get('/filter', filterJobs);
-
-/**
- * @swagger
- * /jobs/sort:
- *   get:
- *     summary: 채용 공고 정렬
- *     tags: [Jobs]
- *     parameters:
- *       - in: query
- *         name: sortBy
- *         schema:
- *           type: string
- *           enum: [createdAt, title]
- *           default: createdAt
- *         description: "정렬 기준 (createdAt: 생성일, title: 공고 제목)"
- *       - in: query
- *         name: order
- *         schema:
- *           type: string
- *           enum: [asc, desc]
- *           default: desc
- *         description: "정렬 순서 (asc: 오름차순, desc: 내림차순)"
- *     responses:
- *       200:
- *         description: 정렬된 채용 공고 목록 반환
- *       500:
- *         description: 서버 에러
- */
-router.get('/sort', sortJobs);
-
-/**
- * @swagger
- * /jobs/aggregate/industry-count:
- *   get:
- *     summary: 산업별 채용 공고 수 집계
- *     tags: [Jobs]
- *     responses:
- *       200:
- *         description: 산업별 채용 공고 수 반환
- *       500:
- *         description: 서버 에러
- */
-router.get('/aggregate/industry-count', aggregateJobs);
-
-/**
- * @swagger
- * /jobs/aggregate/average-salary:
- *   get:
- *     summary: 산업별 평균 연봉 집계
- *     tags: [Jobs]
- *     responses:
- *       200:
- *         description: 산업별 평균 연봉 반환
- *       500:
- *         description: 서버 에러
- */
-router.get('/aggregate/average-salary', aggregateAverageSalaryByIndustry);
 
 module.exports = router;

@@ -13,7 +13,7 @@ const { protect } = require('../middleware/authMiddleware');
 
 /**
  * @swagger
- * /bookmarks/toggle/{jobId}:
+ * /api/bookmarks/toggle/{jobId}:
  *   post:
  *     summary: 채용 공고 북마크 토글 (추가/제거)
  *     tags: [Bookmarks]
@@ -42,7 +42,7 @@ router.post('/toggle/:jobId', protect, toggleBookmark);
 
 /**
  * @swagger
- * /bookmarks:
+ * /api/bookmarks:
  *   get:
  *     summary: 내 북마크 목록 조회
  *     tags: [Bookmarks]

@@ -22,7 +22,7 @@ const router = express.Router();
  * @swagger
  * /api/skills:
  *   post:
- *     summary: 새로운 스킬 생성
+ *     summary: 새로운 스킬 생성 (관리자 권한 필요)
  *     tags: [Skills]
  *     security:
  *       - bearerAuth: []
@@ -107,7 +107,7 @@ router.get('/:id', getSkillById);
  * @swagger
  * /api/skills/{id}:
  *   put:
- *     summary: 특정 스킬 업데이트
+ *     summary: 특정 스킬 업데이트 (관리자 권한 필요)
  *     tags: [Skills]
  *     security:
  *       - bearerAuth: []
@@ -154,7 +154,7 @@ router.put('/:id', protect, authorize('admin'), updateSkill);
  * @swagger
  * /api/skills/{id}:
  *   delete:
- *     summary: 특정 스킬 삭제
+ *     summary: 특정 스킬 삭제 (관리자 권한 필요)
  *     tags: [Skills]
  *     security:
  *       - bearerAuth: []

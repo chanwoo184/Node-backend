@@ -71,6 +71,16 @@ exports.createJob = asyncHandler(async (req, res, next) => {
       deadlineDate = null;
     }
 
+     // 연봉 처리: "5000만원" -> 5000
+     let salaryNumber = null;
+     if (req.body.salary) {
+       const salaryMatch = req.body.salary.match(/^(\d+)(?:만원)?$/);
+       if (salaryMatch) {
+         salaryNumber = parseInt(salaryMatch[1], 10);
+       } else {
+         return next(new BadRequestError('유효한 연봉 형식이 아닙니다.'));
+       }
+     }
     // 채용 공고 생성
     const job = new Job({
       title: req.body.title,
@@ -325,11 +335,15 @@ exports.filterJobs = asyncHandler(async (req, res, next) => {
       if (salaryMin) filter.salary.$gte = salaryMin;
       if (salaryMax) filter.salary.$lte = salaryMax;
     }
+
+    // 스킬 필터링
     if (skills) {
       const skillsArray = skills.split(',').map(skill => skill.trim());
-      filter.skills = { $in: skillsArray };
+      // 스킬 이름을 ObjectId로 변환
+      const skillDocs = await Skill.find({ name: { $in: skillsArray } });
+      const skillIds = skillDocs.map(skill => skill._id);
+      filter.skills = { $in: skillIds };
     }
-
     const jobs = await Job.find(filter)
       .populate('company')
       .populate('sector')
