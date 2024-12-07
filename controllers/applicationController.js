@@ -44,6 +44,7 @@ exports.applyJob = asyncHandler(async (req, res, next) => {
       coverLetter: req.body.coverLetter,
     });
 
+    // 지원 정보 저장 
     await application.save();
     res.status(201).json({ message: '지원 완료', application });
   } catch(err) {

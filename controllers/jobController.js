@@ -291,25 +291,59 @@ exports.deleteJob = asyncHandler(async (req, res, next) => {
  * @route   GET /jobs/search
  * @access  Public
  */
+// controllers/jobController.js
+
 exports.searchJobs = asyncHandler(async (req, res, next) => {
   try {
-    const { keyword } = req.query;
-    if (!keyword) return next(new BadRequestError('검색 키워드가 필요합니다.'));
+    const { keyword, company, sector } = req.query;
+    console.log('검색 파라미터:', { keyword, company, sector }); // 디버깅 로그
 
-    const jobs = await Job.find({
-      title: { $regex: keyword, $options: 'i' },
-      // 공고 내용(description) 필드가 있다면 추가
-      // $or: [
-      //   { title: { $regex: keyword, $options: 'i' } },
-      //   { description: { $regex: keyword, $options: 'i' } }
-      // ]
-    })
-    .populate('company')
-    .populate('sector')
-    .populate('skills');
+    // 필터 객체 초기화
+    let filter = {};
 
+    // 키워드 검색 (title 필드)
+    if (keyword) {
+      filter.title = { $regex: keyword, $options: 'i' }; // 대소문자 구분 없이 검색
+    }
+
+    // 회사명 검색
+    if (company) {
+      // 회사명으로 Company 문서 검색
+      const companies = await Company.find({ name: { $regex: company, $options: 'i' } });
+      if (companies.length > 0) {
+        const companyIds = companies.map(comp => comp._id);
+        filter.company = { $in: companyIds };
+      } else {
+        // 일치하는 회사가 없으면 결과는 빈 배열
+        return res.json([]);
+      }
+    }
+
+    // 섹터(sector) 검색
+    if (sector) {
+      // 섹터명으로 Category 문서 검색
+      const categories = await Category.find({ name: { $regex: sector, $options: 'i' } });
+      if (categories.length > 0) {
+        const categoryIds = categories.map(cat => cat._id);
+        filter.sector = { $in: categoryIds };
+      } else {
+        // 일치하는 섹터가 없으면 결과는 빈 배열
+        return res.json([]);
+      }
+    }
+
+    console.log('최종 필터 조건:', filter); // 디버깅 로그
+
+    // 필터 조건에 맞는 Job 문서 검색
+    const jobs = await Job.find(filter)
+      .populate('company')
+      .populate('sector')
+      .populate('skills');
+
+    console.log(`검색된 공고 수: ${jobs.length}`); // 디버깅 로그
     res.json(jobs);
   } catch(err) {
+    console.error('채용 공고 검색 중 오류 발생:', err);
     next(err);
   }
 });

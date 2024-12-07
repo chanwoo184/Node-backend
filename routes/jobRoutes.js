@@ -84,24 +84,38 @@ const paginationMiddleware = require('../middleware/paginationMiddleware'); // �
  */
 router.post('/', protect, authorize('admin'), createJob);
 
+// routes/jobRoutes.js
+
 /**
  * @swagger
  * /api/jobs/search:
  *   get:
- *     summary: 채용 공고 검색
+ *     summary: 채용 공고 검색 (키워드, 회사명, 포지션)
  *     tags: [Jobs]
  *     parameters:
  *       - in: query
  *         name: keyword
  *         schema:
  *           type: string
- *         required: true
+ *         required: false
  *         description: 검색 키워드
+ *       - in: query
+ *         name: company
+ *         schema:
+ *           type: string
+ *         required: false
+ *         description: 회사명으로 검색
+ *       - in: query
+ *         name: sector
+ *         schema:
+ *           type: string
+ *         required: false
+ *         description: 포지션으로 검색
  *     responses:
  *       200:
  *         description: 검색된 채용 공고 목록 반환
  *       400:
- *         description: 검색 키워드 누락
+ *         description: 잘못된 요청
  *       500:
  *         description: 서버 에러
  */
