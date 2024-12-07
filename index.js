@@ -26,7 +26,7 @@ const errorHandler = require('./middleware/errorHandler'); // 글로벌 에러 �
 const { requestLogger, errorLogger } = require('./middleware/loggerMiddleware');
 const { metricsRouter } = require('./utils/metrics');
 const metricsMiddleware = require('./middleware/metricsMiddleware');
-
+const path = require('path');
 dotenv.config(); // 기본적으로 .env 파일 로드 
 
 const app = express();
@@ -45,6 +45,8 @@ app.use(requestLogger);
 
 // 메트릭 미들웨어 등록 (요청 로깅 후에 등록)
 app.use(metricsMiddleware);
+
+app.use(express.static(path.join(__dirname, 'public')))
 
 // Swagger 설정
 const options = {

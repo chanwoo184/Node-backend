@@ -7,7 +7,7 @@ const { BadRequestError, NotFoundError, ForbiddenError } = require('../utils/cus
 
 /**
  * @desc    지원하기
- * @route   POST /applications/:jobId
+ * @route   POST /api/applications/apply/:jobId
  * @access  Private
  * @param   {Object} req - Express request 객체
  * @param   {Object} res - Express response 객체
@@ -17,8 +17,9 @@ const { BadRequestError, NotFoundError, ForbiddenError } = require('../utils/cus
 exports.applyJob = asyncHandler(async (req, res, next) => {
   const { jobId } = req.params;
 
-  // 입력 데이터 검증 (resume는 파일 업로드로 대체)
+  // 입력 데이터 검증 (resume는 URI 형식으로 받음)
   const schema = Joi.object({
+    resume: Joi.string().uri().required(),
     coverLetter: Joi.string().optional(),
   });
 
@@ -33,13 +34,13 @@ exports.applyJob = asyncHandler(async (req, res, next) => {
     const existingApplication = await Application.findOne({ user: req.user.id, job: jobId });
     if (existingApplication) return next(new BadRequestError('이미 지원한 공고입니다.'));
 
-    // 파일 업로드된 이력서 경로 저장
-    const resumePath = req.file ? req.file.path : null;
+    // 이력서 URI 경로 저장
+    const resumeUri = req.body.resume;
 
     const application = new Application({
       user: req.user.id,
       job: jobId,
-      resume: resumePath,
+      resume: resumeUri,
       coverLetter: req.body.coverLetter,
     });
 
@@ -52,7 +53,7 @@ exports.applyJob = asyncHandler(async (req, res, next) => {
 
 /**
  * @desc    지원 취소
- * @route   DELETE /applications/:applicationId
+ * @route   DELETE /api/applications/cancel/:applicationId
  * @access  Private
  * @param   {Object} req - Express request 객체
  * @param   {Object} res - Express response 객체
@@ -87,7 +88,7 @@ exports.cancelApplication = asyncHandler(async (req, res, next) => {
 
 /**
  * @desc    지원 내역 조회
- * @route   GET /applications
+ * @route   GET /api/applications
  * @access  Private
  * @param   {Object} req - Express request 객체
  * @param   {Object} res - Express response 객체
@@ -125,7 +126,7 @@ exports.getApplications = asyncHandler(async (req, res, next) => {
 
 /**
  * @desc    관심 등록
- * @route   POST /applications/bookmark/:jobId
+ * @route   POST /api/applications/bookmark/:jobId
  * @access  Private
  * @param   {Object} req - Express request 객체
  * @param   {Object} res - Express response 객체
@@ -159,7 +160,7 @@ exports.bookmarkJob = asyncHandler(async (req, res, next) => {
 
 /**
  * @desc    관심 취소
- * @route   DELETE /applications/bookmark/:jobId
+ * @route   DELETE /api/applications/bookmark/:jobId
  * @access  Private
  * @param   {Object} req - Express request 객체
  * @param   {Object} res - Express response 객체
@@ -182,7 +183,7 @@ exports.unbookmarkJob = asyncHandler(async (req, res, next) => {
 
 /**
  * @desc    관심 목록 조회
- * @route   GET /applications/bookmarks
+ * @route   GET /api/applications/bookmarks
  * @access  Private
  * @param   {Object} req - Express request 객체
  * @param   {Object} res - Express response 객체
