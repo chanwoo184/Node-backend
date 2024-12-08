@@ -103,3 +103,11 @@
 2024-12-07T14:44:45.485Z [error]: 500 - 서버 에러 - /api/jobs/filter?skills=java - GET - ::1
 2024-12-07T14:51:52.603Z [error]: 500 - 서버 에러 - /api/jobs/filter?sector=%EB%B0%B1%EC%97%94%EB%93%9C&skills=Java - GET - ::1
 2024-12-07T14:54:18.637Z [error]: 500 - 서버 에러 - /api/jobs/filter?sector=%EB%B0%B1%EC%97%94%EB%93%9C&skills=Java - GET - ::1
+2024-12-08T05:34:02.525Z [error]: 500 - 서버 에러 - /api/jobs/aggregate/average-salary - GET - ::1
+2024-12-08T05:34:06.480Z [error]: 500 - 서버 에러 - /api/jobs/aggregate/average-salary - GET - ::1
+2024-12-08T05:34:21.888Z [error]: 500 - 서버 에러 - /api/jobs/aggregate/average-salary - GET - ::1
+2024-12-08T05:43:57.826Z [error]: 500 - 서버 에러 - /api/jobs/aggregate/average-salary - GET - ::1
+2024-12-08T05:51:27.057Z [error]: 500 - 서버 에러 - /api/jobs/aggregate/average-salary - GET - ::1
+2024-12-08T05:52:54.643Z [error]: 500 - 서버 에러 - /api/auth/login - POST - ::1
+2024-12-08T05:54:29.171Z [error]: 500 - 서버 에러 - /api/jobs/aggregate/average-salary - GET - ::1
+2024-12-08T05:54:31.153Z [error]: 500 - 서버 에러 - /api/jobs/aggregate/average-salary - GET - ::1

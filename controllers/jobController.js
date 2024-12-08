@@ -93,7 +93,7 @@ exports.createJob = asyncHandler(async (req, res, next) => {
       deadline: deadlineDate,
       sector: category ? category._id : null,
       skills: skills,
-      salary: req.body.salary,
+      salary: salaryNumber,
       views: 0, // 조회수 초기화
     });
 
@@ -180,20 +180,23 @@ exports.getJobById = asyncHandler(async (req, res, next) => {
  * @route   PUT /jobs/:id
  * @access  Private/Admin
  */
+
+// controllers/jobController.js
+
 exports.updateJob = asyncHandler(async (req, res, next) => {
   // 입력 데이터 검증
   const schema = Joi.object({
-    title:          Joi.string(),
-    company:        Joi.string(),
-    link:           Joi.string().uri(),
-    location:       Joi.string(),
-    experience:     Joi.string(),
-    education:      Joi.string(),
+    title: Joi.string(),
+    company: Joi.string(),
+    link: Joi.string().uri(),
+    location: Joi.string(),
+    experience: Joi.string(),
+    education: Joi.string(),
     employmentType: Joi.string(),
-    deadline:       Joi.string().optional(),
-    sector:         Joi.string(),
-    skills:         Joi.array().items(Joi.string()),
-    salary:         Joi.string(),
+    deadline: Joi.string().optional(),
+    sector: Joi.string(),
+    skills: Joi.array().items(Joi.string()),
+    salary: Joi.string(),
   });
 
   const { error } = schema.validate(req.body);
@@ -209,15 +212,30 @@ exports.updateJob = asyncHandler(async (req, res, next) => {
     if (req.body.experience) updateData.experience = req.body.experience;
     if (req.body.education) updateData.education = req.body.education;
     if (req.body.employmentType) updateData.employmentType = req.body.employmentType;
-    if (req.body.salary) updateData.salary = req.body.salary;
+
+    // 연봉 처리: "7000만원" -> 7000
+    if (req.body.salary) {
+      const salaryMatch = req.body.salary.match(/^(\d+)(?:만원)?$/);
+      if (salaryMatch) {
+        updateData.salary = parseInt(salaryMatch[1], 10);
+      } else {
+        return next(new BadRequestError('유효한 연봉 형식이 아닙니다.'));
+      }
+    }
 
     // 마감일 파싱
     if (req.body.deadline) {
-      let deadlineDate = parseDate(req.body.deadline);
-      if (req.body.deadline === '상시채용') {
-        deadlineDate = null;
+      let deadlineDate = null;
+      try {
+        if (req.body.deadline.toLowerCase() !== '상시채용') {
+          deadlineDate = parseDate(req.body.deadline);
+        } else {
+          deadlineDate = null;
+        }
+        updateData.deadline = deadlineDate;
+      } catch (error) {
+        return next(new BadRequestError(error.message));
       }
-      updateData.deadline = deadlineDate;
     }
 
     // 회사 업데이트
@@ -452,6 +470,7 @@ exports.aggregateJobs = asyncHandler(async (req, res, next) => {
  * @route   GET /jobs/aggregate/average-salary
  * @access  Public
  */
+
 exports.aggregateAverageSalaryByIndustry = asyncHandler(async (req, res, next) => {
   try {
     const aggregation = await Job.aggregate([
@@ -464,24 +483,15 @@ exports.aggregateAverageSalaryByIndustry = asyncHandler(async (req, res, next) =
         }
       },
       { $unwind: '$companyDetails' },
+      // salary 필드가 존재하고 숫자인 경우에만 필터링
       {
         $match: {
-          salary: { $regex: /^\d+/, $options: 'g' } // 숫자로 시작하는 salary 필드만
-        }
-      },
-      {
-        $project: {
-          industry: '$companyDetails.industry',
-          salary: {
-            $toDouble: {
-              $replaceAll: { input: '$salary', find: '만원', replacement: '' }
-            }
-          }
+          salary: { $exists: true, $type: 'number' }
         }
       },
       {
         $group: {
-          _id: '$industry',
+          _id: '$companyDetails.industry',
           averageSalary: { $avg: '$salary' },
           count: { $sum: 1 }
         }
@@ -491,6 +501,7 @@ exports.aggregateAverageSalaryByIndustry = asyncHandler(async (req, res, next) =
 
     res.json(aggregation);
   } catch(err) {
+    console.error('산업별 평균 연봉 집계 중 오류 발생:', err);
     next(err);
   }
 });
