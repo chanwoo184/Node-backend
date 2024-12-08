@@ -90,7 +90,7 @@ npm run start
 
 ### Swagger UI 접근
 ```
-http://localhost:5000/api/docs
+http://localhost:5000/api-docs
 ```
 
 ## 프로젝트 구조

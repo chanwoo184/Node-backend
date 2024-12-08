@@ -111,3 +111,13 @@
 2024-12-08T05:52:54.643Z [error]: 500 - 서버 에러 - /api/auth/login - POST - ::1
 2024-12-08T05:54:29.171Z [error]: 500 - 서버 에러 - /api/jobs/aggregate/average-salary - GET - ::1
 2024-12-08T05:54:31.153Z [error]: 500 - 서버 에러 - /api/jobs/aggregate/average-salary - GET - ::1
+2024-12-08T09:28:51.233Z [error]: ::1 - - [08/Dec/2024:09:28:51 +0000] "GET /api/users HTTP/1.1" 404 148 "-" "PostmanRuntime/7.43.0"
+2024-12-08T09:30:51.984Z [error]: ::1 - - [08/Dec/2024:09:30:51 +0000] "GET /api/users/me%0A HTTP/1.1" 404 154 "-" "PostmanRuntime/7.43.0"
+2024-12-08T09:31:01.778Z [error]: ::1 - - [08/Dec/2024:09:31:01 +0000] "GET /api/users/me%0A HTTP/1.1" 404 154 "-" "PostmanRuntime/7.43.0"
+2024-12-08T09:31:36.777Z [error]: ::1 - - [08/Dec/2024:09:31:36 +0000] "GET /api/users/me%0A HTTP/1.1" 404 154 "-" "PostmanRuntime/7.43.0"
+2024-12-08T09:32:21.103Z [error]: ::1 - - [08/Dec/2024:09:32:21 +0000] "GET /api%0A HTTP/1.1" 404 145 "-" "PostmanRuntime/7.43.0"
+2024-12-08T09:32:26.978Z [error]: ::1 - - [08/Dec/2024:09:32:26 +0000] "GET /api/%0A HTTP/1.1" 404 146 "-" "PostmanRuntime/7.43.0"
+2024-12-08T09:32:35.704Z [error]: ::1 - - [08/Dec/2024:09:32:35 +0000] "GET /api/jobs%0A HTTP/1.1" 404 150 "-" "PostmanRuntime/7.43.0"
+2024-12-08T09:44:17.097Z [error]: 500 - 서버 에러 - /api/auth/login - POST - ::1
+2024-12-08T09:45:26.292Z [error]: 500 - 서버 에러 - /api/auth/login - POST - ::1
+2024-12-08T09:50:53.176Z [error]: 400 - 유효하지 않은 토큰입니다. - /api/auth/refresh-token - POST - ::1
