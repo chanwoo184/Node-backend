@@ -41,7 +41,7 @@ const jobSchema = new mongoose.Schema({
   },
   sector: { type: mongoose.Schema.Types.ObjectId, ref: 'Category' },
   skills: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Skill' }],
-  salary: { type: Number }, // 수정된 부분: String에서 Number로 변경
+  salary: { type: String }, // 수정된 부분: String에서 Number로 변경
   views: { type: Number, default: 0 },
   createdAt: { type: Date, default: Date.now },
 });
