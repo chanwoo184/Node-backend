@@ -28,7 +28,7 @@ exports.createJob = asyncHandler(async (req, res, next) => {
     skills:         Joi.array().items(Joi.string()), // 기술 이름 배열
     salary:         Joi.string(),
   });
-
+  
   const { error } = schema.validate(req.body);
   if (error) return next(new BadRequestError(error.details[0].message));
 

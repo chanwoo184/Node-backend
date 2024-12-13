@@ -225,7 +225,7 @@ const startServer = async () => {
     });
     console.log('MongoDB 연결 성공');
 
-    const server = app.listen(PORT, () => console.log(`서버가 포트 ${PORT}에서 시작되었습니다.`));
+    const server = app.listen(PORT, '0.0.0.0', () => console.log(`서버가 포트 ${PORT}에서 시작되었습니다.`));
     module.exports = server; // Jest 테스트를 위해 내보냄
 
     // 크롤링 작업 주기적 실행 (매일 오전 2시에 실행)
