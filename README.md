@@ -2,17 +2,73 @@
 
 채용 공고, 북마크, 사용자 지원 등 다양한 기능을 관리하는 종합적인 RESTful API입니다. 이 API는 잡보드 플랫폼의 견고한 백엔드를 제공하여 채용 공고 목록 관리, 사용자 상호작용, 관리자 기능 등을 지원합니다.
 
-## 목차
+## 사용 기술
 
-- [특징](#특징)
-- [사용 기술](#사용-기술)
-- [시작하기](#시작하기)
-  - [필수 조건](#필수-조건)
-  - [설치](#설치)
-  - [환경 변수 설정](#환경-변수-설정)
-- [애플리케이션 실행](#애플리케이션-실행)
-- [API 문서](#api-문서)
-- [프로젝트 구조](#프로젝트-구조)
+- **런타임 환경:** Node.js
+- **프레임워크:** Express.js
+- **데이터베이스:** MongoDB (Mongoose ODM 사용)
+- **인증:** JWT (JSON Web Tokens)
+- **유효성 검사:** Joi
+- **문서화:** Swagger (OpenAPI)
+- **테스트:** Jest, Supertest
+- **로깅:** Winston, Morgan
+- **모니터링:** Prometheus, Grafana
+- **기타 도구:** Nodemon, Helmet, CORS, Rate Limiting, Cron Jobs
+
+## 시작하기
+
+### 참고사항
+
+- **Node.js:** Node.js가 설치되어 있어야 합니다 (권장 버전: v14 이상).
+- **MongoDB:** 실행 중인 MongoDB 인스턴스가 필요합니다. 저는 MongoDB Compass를 이용해서 관리했습니다.
+- **.env:** 
+  ```
+  PORT=443, DB_URI=mongodb://chanwoo:1234@113.198.66.75:13227/saramin
+  NODE_ENV=production
+  ```
+**회원 관리 API(/auth)의 회원 정보 수정(PUT/auth/profile)은 Users 엔드포인트의 (PUT/users/me)로 구현해놨습니다.**
+
+## 설치 및 사용 방법
+
+### 설치
+  **저장소 클론하기:**
+   ```
+   git clone https://github.com/chanwoo184/Node-backend.git
+   ``` 
+  **package.json을을 다운 받았다면:**
+   ```
+   npm install 
+   ```
+
+### 사용 방법
+
+  **개발:**
+  코드 변경 시 자동으로 서버를 재시작하는 nodemon을 사용합니다.
+  ```
+  npm run dev
+  ```
+  **서버 실행:**
+  ```
+  cd Node-backend
+  pm2 start index.js --name Node-backend
+  pm2 list // 실행된 프로세스 확인 
+  ```
+  **크롤링:**
+  ```
+  node scripts/crawl.js
+  ```
+### DB
+  3000 포트포워딩
+  MongoDB Compass를 이용해서 관리 
+**mongodb://chanwoo:1234@113.198.66.75:13227/saramin**
+
+### API 문서
+443 포트포워딩
+포괄적인 API 문서는 Swagger UI를 통해 확인할 수 있습니다.
+```
+개발환경: http://localhost:3000/api-docs
+배포환경: https://113.198.66.75:17227/api-docs/#/
+```
 
 ## 특징
 
@@ -36,62 +92,6 @@
 - **메트릭스 및 모니터링:** Prometheus를 활용한 실시간 메트릭스를 통해 API 성능을 모니터링합니다.
 - **에러 처리:** 글로벌 에러 핸들러를 통해 일관된 에러 응답을 제공합니다.
 - **로깅:** 요청 및 에러 로깅을 통해 디버깅 및 모니터링을 용이하게 합니다.
-
-## 사용 기술
-
-- **런타임 환경:** Node.js
-- **프레임워크:** Express.js
-- **데이터베이스:** MongoDB (Mongoose ODM 사용)
-- **인증:** JWT (JSON Web Tokens)
-- **유효성 검사:** Joi
-- **문서화:** Swagger (OpenAPI)
-- **테스트:** Jest, Supertest
-- **로깅:** Winston, Morgan
-- **모니터링:** Prometheus, Grafana
-- **기타 도구:** Nodemon, Helmet, CORS, Rate Limiting, Cron Jobs
-
-## 시작하기
-
-### 필수 조건
-
-- **Node.js:** Node.js가 설치되어 있어야 합니다 (권장 버전: v14 이상).
-- **MongoDB:** 실행 중인 MongoDB 인스턴스가 필요합니다. [MongoDB Atlas](https://www.mongodb.com/cloud/atlas)를 사용하거나 로컬에 MongoDB를 설치할 수 있습니다.
-- **Git:** 버전 관리를 위해 Git이 설치되어 있어야 합니다.
-
-## 설치
-
-**저장소 클론하기:**
-
-   ```
-   bash
-   git clone https://github.com/yourusername/job-board-api.git
-   cd job-board-api
-   ```
-
-## 애플리케이션 실행 
-
-### 개발 모드
-
-코드 변경 시 자동으로 서버를 재시작하는 nodemon을 사용합니다.
-```
-npm run dev
-```
-
-### 프로덕션 모드
-
-nodemon 없이 서버를 실행합니다.
-```
-npm run start
-```
-
-## API 문서
-
-포괄적인 API 문서는 Swagger UI를 통해 확인할 수 있습니다.
-
-### Swagger UI 접근
-```
-http://localhost:5000/api-docs
-```
 
 ## 프로젝트 구조
 ```

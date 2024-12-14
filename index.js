@@ -27,6 +27,8 @@ const { requestLogger, errorLogger } = require('./middleware/loggerMiddleware');
 const { metricsRouter } = require('./utils/metrics');
 const metricsMiddleware = require('./middleware/metricsMiddleware');
 const path = require('path');
+const https = require('https');
+const fs = require('fs');
 
 dotenv.config(); // 기본적으로 .env 파일 로드 
 
@@ -36,7 +38,7 @@ const app = express();
 app.use(express.json());
 app.use(helmet());
 app.use(cors({
-  origin: 'http://your-frontend-domain.com', // 실제 프론트엔드 도메인으로 변경
+  origin: 'https://113.198.66.75:17227', // 실제 프론트엔드 도메인으로 변경
   optionsSuccessStatus: 200
 }));
 app.use(rateLimiter);
@@ -60,7 +62,7 @@ const options = {
     },
     servers: [
       {
-        url: process.env.NODE_ENV === 'production' ? 'https://your-production-domain.com' : `http://localhost:${process.env.PORT || 5000}`,
+        url: process.env.NODE_ENV === 'production' ? 'https://113.198.66.75:17227' : `http://localhost:${process.env.PORT || 5000}`,
       },
     ],
     components: {
@@ -216,17 +218,26 @@ app.use(errorLogger);
 // 글로벌 에러 핸들러 등록 (모든 라우트 후에 등록)
 app.use(errorHandler);
 
+// SSL 인증서 및 키 로드
+const sslOptions = {
+  key: fs.readFileSync(path.join(__dirname, 'server.key')),
+  cert: fs.readFileSync(path.join(__dirname, 'server.cert'))
+};
 // 서버 시작 부분을 함수로 분리
 const PORT = process.env.PORT || 5000;
 const startServer = async () => {
   try {
     await mongoose.connect(process.env.DB_URI, {
-  
+    useNewUrlParser: true,
+    useUnifiedTopology: true,
     });
     console.log('MongoDB 연결 성공');
 
-    const server = app.listen(PORT, '0.0.0.0', () => console.log(`서버가 포트 ${PORT}에서 시작되었습니다.`));
+    const server = https.createServer(sslOptions, app).listen(PORT, '0.0.0.0', () => {
+      console.log(`서버가 포트 ${PORT}에서 HTTPS로 시작되었습니다.`);
+    });
     module.exports = server; // Jest 테스트를 위해 내보냄
+
 
     // 크롤링 작업 주기적 실행 (매일 오전 2시에 실행)
     cron.schedule('0 2 * * *', async () => {
