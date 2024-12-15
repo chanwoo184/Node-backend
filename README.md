@@ -27,6 +27,18 @@
   ```
   // 다음 명령어를 사용하여 자체 서명된 SSL 인증서와 개인 키를 생성
   openssl req -nodes -new -x509 -keyout server.key -out server.cert -days 365
+
+  //명령어 실행 후, 다음과 같은 정보를 입력하라는 프롬프트가 나타납니다.
+  Country Name (2 letter code): 국가 코드 (예: KR)
+  State or Province Name (full name): 주 또는 도 이름
+  Locality Name (eg, city): 도시 이름
+  Organization Name (eg, company): 조직 이름
+  Organizational Unit Name (eg, section): 부서 이름
+  Common Name (e.g. server FQDN or YOUR name): IP 주소 (예: 113.198.66.75)
+  Email Address: 이메일 주소
+
+  // 생성된 인증서 및 키 파일 확인
+  ls -l server.*
   ```
 
 ## 설치 및 사용 방법
