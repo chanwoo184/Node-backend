@@ -22,6 +22,7 @@
 
 - **Node.js:** Node.js가 설치되어 있어야 합니다 (권장 버전: v14 이상).
 - **MongoDB:** 실행 중인 MongoDB 인스턴스가 필요합니다. 저는 MongoDB Compass를 이용해서 관리했습니다.
+- **pm2:** 백그라운드에서 실행되도록 설정
 - **회원 관리 API(/auth)의 회원 정보 수정(PUT/auth/profile)은 Users 엔드포인트의 (PUT/users/me)로 구현해놨습니다.**
 - **자체 서명된 SSL 인증서를 사용하여 포트 443에서 HTTPS 서버를 설정했습니다.**
   ```
@@ -39,8 +40,12 @@
 
   // 생성된 인증서 및 키 파일 확인
   ls -l server.*
+  // SSL 인증서 및 키 로드(index.js에 존재)
+  const sslOptions = {
+    key: fs.readFileSync(path.join(__dirname, 'server.key')),
+    cert: fs.readFileSync(path.join(__dirname, 'server.cert'))
+  };
   ```
-
 ## 설치 및 사용 방법
 
 ### 설치
@@ -60,7 +65,7 @@
   ```
   npm run dev
   ```
-  **서버 실행:**
+  **Jcloud 실행:**
   ```
   cd Node-backend
   pm2 start index.js --name Node-backend
@@ -74,28 +79,26 @@
   mongosh mongodb://127.0.0.1:3000/saramin
 
   db.createUser({
-  user: "appuser",
-  pwd: "your_password",
+  user: "chanwoo",
+  pwd: "1234",
   roles: [ { role: "readWrite", db: "saramin" } ]
   })
 
   ```
-  **크롤링 실행행:**
+  **크롤링 실행:**
   ```
   node scripts/crawl.js
   ```
 ## DB
 - 3000 포트포워딩
 - MongoDB Compass를 이용해서 관리
-- (mongodb://chanwoo:1234@113.198.66.75:13227/saramin)
+  - (mongodb://chanwoo:1234@113.198.66.75:13227/saramin)
 
 ## API 문서
 - 443 포트포워딩
 - 포괄적인 API 문서는 Swagger UI를 통해 확인할 수 있습니다.
-
-- 개발환경: [Link](http://localhost:3000/api-docs)
-- 배포환경: [Link](https://113.198.66.75:17227/api-docs/#/)
-
+  - 개발환경: [Link](http://localhost:3000/api-docs)
+  - 배포환경: [Link](https://113.198.66.75:17227/api-docs/#/)
 
 ### **Applications**
 **지원 및 관심 등록 관련 엔드포인트:**
