@@ -40,6 +40,7 @@
 
   // 생성된 인증서 및 키 파일 확인
   ls -l server.*
+  
   // SSL 인증서 및 키 로드(index.js에 존재)
   const sslOptions = {
     key: fs.readFileSync(path.join(__dirname, 'server.key')),
@@ -68,6 +69,7 @@
   **Jcloud 실행:**
   ```
   cd Node-backend
+  npm install -g pm2
   pm2 start index.js --name Node-backend
   pm2 list // 실행된 프로세스 확인
 
