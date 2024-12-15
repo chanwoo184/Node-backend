@@ -1,6 +1,7 @@
 # Job-board REST API
 
-채용 공고, 북마크, 사용자 지원 등 다양한 기능을 관리하는 종합적인 RESTful API입니다. 이 API는 잡보드 플랫폼의 견고한 백엔드를 제공하여 채용 공고 목록 관리, 사용자 상호작용, 관리자 기능 등을 지원합니다.
+채용 공고, 북마크, 사용자 지원 등 다양한 기능을 관리하는 종합적인 RESTful API입니다.<br>
+이 API는 잡보드 플랫폼의 견고한 백엔드를 제공하여 채용 공고 목록 관리, 사용자 상호작용, 관리자 기능 등을 지원합니다.
 
 ## 사용 기술
 
@@ -21,12 +22,7 @@
 
 - **Node.js:** Node.js가 설치되어 있어야 합니다 (권장 버전: v14 이상).
 - **MongoDB:** 실행 중인 MongoDB 인스턴스가 필요합니다. 저는 MongoDB Compass를 이용해서 관리했습니다.
-- **.env:** 
-  ```
-  PORT=443, DB_URI=mongodb://chanwoo:1234@113.198.66.75:13227/saramin
-  NODE_ENV=production
-  ```
-**회원 관리 API(/auth)의 회원 정보 수정(PUT/auth/profile)은 Users 엔드포인트의 (PUT/users/me)로 구현해놨습니다.**
+- **회원 관리 API(/auth)의 회원 정보 수정(PUT/auth/profile)은 Users 엔드포인트의 (PUT/users/me)로 구현해놨습니다.**
 
 ## 설치 및 사용 방법
 
@@ -35,7 +31,7 @@
    ```
    git clone https://github.com/chanwoo184/Node-backend.git
    ``` 
-  **package.json을을 다운 받았다면:**
+  **package.json을 다운 받았다면:**
    ```
    npm install 
    ```
@@ -51,98 +47,103 @@
   ```
   cd Node-backend
   pm2 start index.js --name Node-backend
-  pm2 list // 실행된 프로세스 확인 
+  pm2 list // 실행된 프로세스 확인
+
+  // MongoDB 서비스 시작 및 상태 확인
+  sudo systemctl restart mongod
+  sudo systemctl status mongod
+
+  // MongoDB 사용자 생성
+  mongosh mongodb://127.0.0.1:3000/saramin
+
+  db.createUser({
+  user: "appuser",
+  pwd: "your_password",
+  roles: [ { role: "readWrite", db: "saramin" } ]
+  })
+
   ```
-  **크롤링:**
+  **크롤링 실행행:**
   ```
   node scripts/crawl.js
   ```
-### DB
-  3000 포트포워딩
-  MongoDB Compass를 이용해서 관리 
-**mongodb://chanwoo:1234@113.198.66.75:13227/saramin**
+## DB
+- 3000 포트포워딩
+- MongoDB Compass를 이용해서 관리
+- (mongodb://chanwoo:1234@113.198.66.75:13227/saramin)
 
-### API 문서
-443 포트포워딩
-포괄적인 API 문서는 Swagger UI를 통해 확인할 수 있습니다.
+## API 문서
+- 443 포트포워딩
+- 포괄적인 API 문서는 Swagger UI를 통해 확인할 수 있습니다.
 ```
-개발환경: http://localhost:3000/api-docs
-배포환경: https://113.198.66.75:17227/api-docs/#/
+개발환경: (http://localhost:3000/api-docs)
+배포환경: (https://113.198.66.75:17227/api-docs/#/)
 ```
 
-## 특징
+### **Applications**
+**지원 및 관심 등록 관련 엔드포인트:**
 
-### 채용 공고 관리
-- **채용 공고 생성:** 관리자만 새로운 채용 공고를 생성할 수 있습니다.
-- **채용 공고 조회:** 페이지네이션, 다양한 필터링 및 정렬 옵션을 통해 채용 공고를 조회할 수 있습니다.
-- **채용 공고 상세 정보:** 특정 채용 공고의 상세 정보(회사 정보, 요구 기술 등)를 조회할 수 있습니다.
-- **채용 공고 수정:** 관리자가 기존 채용 공고를 수정할 수 있습니다.
-- **채용 공고 삭제:** 관리자가 채용 공고를 삭제할 수 있습니다.
-- **검색 및 필터링:** 키워드, 위치, 경력, 기술 스택 등 다양한 기준으로 채용 공고를 검색하고 필터링할 수 있습니다.
-- **데이터 집계:** 산업별 채용 공고 수 및 산업별 평균 연봉과 같은 통계 데이터를 생성할 수 있습니다.
+POST /api/applications/apply/{jobId}         # 채용 공고에 지원합니다.
+DELETE /api/applications/cancel/{applicationId}  # 채용 지원을 취소합니다.
+GET /api/applications                          # 지원 내역을 조회합니다.
+POST /api/applications/bookmark/{jobId}        # 채용 공고를 관심 목록에 추가합니다.
+DELETE /api/applications/bookmark/{jobId}      # 채용 공고를 관심 목록에서 제거합니다.
+GET /api/applications/bookmarks                # 관심 목록을 조회합니다.
 
-### 사용자 상호작용
-- **채용 공고 북마크:** 사용자가 채용 공고를 북마크하거나 북마크를 해제할 수 있습니다.
-- **북마크 목록 조회:** 북마크한 채용 공고 목록을 페이지네이션, 정렬, 필터링을 통해 조회할 수 있습니다.
-- **사용자 인증:** JWT 기반의 안전한 사용자 등록 및 로그인 기능을 제공합니다.
-- **역할 기반 접근 제어:** 사용자 역할(예: 관리자, 일반 사용자)에 따라 기능 접근 권한을 다르게 설정합니다.
+### **Auth**
+**인증 관련 엔드포인트:**
 
-### 추가 기능
-- **채용 공고 크롤링:** Saramin과 같은 외부 소스에서 채용 공고를 자동으로 크롤링하고 저장하는 스케줄 작업을 포함합니다.
-- **메트릭스 및 모니터링:** Prometheus를 활용한 실시간 메트릭스를 통해 API 성능을 모니터링합니다.
-- **에러 처리:** 글로벌 에러 핸들러를 통해 일관된 에러 응답을 제공합니다.
-- **로깅:** 요청 및 에러 로깅을 통해 디버깅 및 모니터링을 용이하게 합니다.
+POST /api/auth/register      # 회원가입을 진행합니다.
+POST /api/auth/login         # 로그인을 진행합니다.
+POST /api/auth/logout        # 로그아웃을 진행합니다.
+POST /api/auth/refresh-token # 인증 토큰을 갱신합니다.
 
-## 프로젝트 구조
-```
-project/
-├── controllers/
-│   ├── applicationController.js
-│   ├── bookmarkController.js
-│   ├── jobController.js
-│   ├── userController.js
-│   └── ... 기타 컨트롤러
-├── models/
-│   ├── Application.js
-│   ├── Bookmark.js
-│   ├── Company.js
-│   ├── Job.js
-│   ├── Category.js
-│   ├── Skill.js
-│   ├── User.js
-│   └── ... 기타 모델
-├── routes/
-│   ├── applicationRoutes.js
-│   ├── bookmarkRoutes.js
-│   ├── jobRoutes.js
-│   ├── userRoutes.js
-│   ├── authRoutes.js
-│   └── ... 기타 라우터
-├── middleware/
-│   ├── authMiddleware.js
-│   ├── errorHandler.js
-│   ├── paginationMiddleware.js
-│   ├── rateLimitMiddleware.js
-│   ├── loggerMiddleware.js
-│   └── ... 기타 미들웨어
-├── utils/
-│   ├── customError.js
-│   ├── logger.js
-│   ├── parseDate.js
-│   ├── metrics.js
-│   └── ... 기타 유틸리티
-├── services/
-│   ├── crawler.js
-│   └── ... 기타 서비스
-├── tests/
-│   ├── job.test.js
-│   └── ... 기타 테스트 파일
-├── config/
-│   ├── db.js
-│   └── ... 기타 설정
-├── index.js
-├── package.json
-├── .env
-├── README.md
-└── ... 기타 파일
-```
+### **Bookmarks**
+**관심 목록 관리 엔드포인트:**
+
+POST /api/bookmarks/toggle/{jobId} # 채용 공고 북마크 상태를 토글(추가/제거)합니다.
+GET /api/bookmarks                 # 사용자 북마크 목록을 조회합니다.
+
+### **Jobs**
+**채용 공고 관리 엔드포인트:**
+
+POST /api/jobs                             # 새로운 채용 공고를 생성합니다 (관리자 권한 필요).
+GET /api/jobs                              # 모든 채용 공고를 조회합니다.
+GET /api/jobs/search                       # 키워드, 회사명 또는 직위로 채용 공고를 검색합니다.
+GET /api/jobs/filter                       # 조건에 따라 채용 공고를 필터링합니다.
+GET /api/jobs/sort                         # 채용 공고를 정렬합니다.
+GET /api/jobs/aggregate/industry-count     # 산업별 채용 공고 수를 집계합니다.
+GET /api/jobs/aggregate/average-salary     # 산업별 평균 연봉을 집계합니다.
+GET /api/jobs/{id}                         # 특정 채용 공고의 상세 정보를 조회합니다.
+PUT /api/jobs/{id}                         # 특정 채용 공고를 수정합니다 (관리자 권한 필요).
+DELETE /api/jobs/{id}                      # 특정 채용 공고를 삭제합니다 (관리자 권한 필요).
+
+### **Reviews**
+**채용 리뷰 관리 엔드포인트:**
+
+POST /api/reviews/{jobId} # 특정 채용 공고에 리뷰를 작성합니다.
+GET /api/reviews/{jobId}  # 특정 채용 공고의 리뷰를 조회합니다.
+
+### **Skills**
+**스킬 관리 엔드포인트:**
+
+POST /api/skills         # 새로운 스킬을 생성합니다 (관리자 권한 필요).
+GET /api/skills          # 모든 스킬을 조회합니다.
+GET /api/skills/{id}     # 특정 스킬을 조회합니다.
+PUT /api/skills/{id}     # 특정 스킬을 수정합니다 (관리자 권한 필요).
+DELETE /api/skills/{id}  # 특정 스킬을 삭제합니다 (관리자 권한 필요).
+
+### **Users**
+**사용자 프로필 관리 엔드포인트:**
+
+GET /api/users/me    # 현재 사용자의 프로필 정보를 조회합니다.
+PUT /api/users/me    # 현재 사용자의 프로필 정보를 수정합니다.
+DELETE /api/users/me # 현재 사용자의 계정을 삭제합니다.
+
+### 참고 사항
+- `(관리자 권한 필요)`가 표시된 엔드포인트는 관리자 권한이 필요합니다.
+- 모든 엔드포인트는 별도의 언급이 없는 한 인증이 필요합니다.
+
+
+
+
